@@ -13,6 +13,17 @@ Role Variables
 
 See `defaults/main.yml`
 
+
+```yaml
+# role to loop over
+loop_role: <your role here>  # required
+# string to add as a prefix for role vars
+loop_prefix: "{{ loop_role | lower | regex_replace('[-/]', '_') ~ '_' }}"
+# items to loop over
+loop_items: []  # required
+```
+
+
 Dependencies
 ------------
 
