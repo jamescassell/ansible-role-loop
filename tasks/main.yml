@@ -1,0 +1,9 @@
+---
+# tasks file for loop
+
+- name: place and run task file
+  include_tasks: role-exec.yml
+  with_items: "{{ loop_items }}"
+  no_log: yes
+  loop_control:
+     loop_var: loop_this_item

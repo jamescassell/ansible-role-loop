@@ -1,0 +1,13 @@
+---
+# defaults file for loop
+
+# string to add as a prefix for role vars
+loop_prefix: "{{ loop_role | lower | regex_replace('[-/]', '_') ~ '_' }}"
+
+# options to apply to import_role
+loop_allow_duplicates: "{{ omit }}"
+loop_apply: "{{ omit }}"
+loop_defaults_from: "{{ omit }}"
+loop_handlers_from: "{{ omit }}"
+loop_tasks_from: "{{ omit }}"
+loop_vars_from: "{{ omit }}"

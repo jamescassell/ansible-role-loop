@@ -1,0 +1,48 @@
+---
+
+- name: create tempfile for role execution
+  tempfile:
+  changed_when: no
+  register: loop_tasks
+  become: no
+  delegate_to: localhost
+
+- name: create task file
+  copy:
+    dest: "{{ loop_tasks.path }}"
+    content: |
+      - name: block for "apply"
+        block:
+        - meta: noop
+      {% if loop_apply | bool %}    vars:
+            apply: &apply {{ loop_apply | to_json }}{{ newline }}{% endif %}
+        - name: loop on role {{ loop_role }}
+          # include_role ends up with undefined vars in handlers
+          import_role:
+            name: {{ loop_role }}
+      {% if loop_defaults_from | bool %}      defaults_from: {{ loop_defaults_from ~ newline }}{% endif %}
+      {% if loop_handlers_from | bool %}      handlers_from: {{ loop_handlers_from ~ newline }}{% endif %}
+      {% if loop_tasks_from | bool %}      tasks_from: {{ loop_tasks_from ~ newline }}{% endif %}
+      {% if loop_vars_from | bool %}      vars_from: {{ loop_vars_from ~ newline }}{% endif %}
+      {% if loop_allow_duplicates | bool %}      allow_duplicates: {{ loop_allow_duplicates ~ newline }}{% endif %}
+        vars:
+      {% for myvar in loop_this_item.keys() %}
+            {{ loop_prefix ~ myvar ~ ': "{{ loop_this_item.' ~ myvar ~ ' }}"' }}
+      {% endfor %}
+      {% if loop_apply | bool %}  <<: *apply{{ newline }}{% endif %}
+  changed_when: no
+  become: no
+  delegate_to: localhost
+  vars:
+    newline: "\n"
+
+- name: include role task
+  include_tasks: "{{ loop_tasks.path }}"
+
+- name: remove tempfile
+  file:
+    path: "{{ loop_tasks.path }}"
+    state: absent
+  changed_when: no
+  become: no
+  delegate_to: localhost
